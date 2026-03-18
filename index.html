@@ -3,108 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>霓虹流光暗调网站</title>
+    <title>Neon Flow</title>
     <style>
-        /* 全局重置与基础样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* 主体背景：纯黑底 + 霓虹流光效果 */
         body {
-            width: 100vw;
-            height: 100vh;
-            background: #000; /* 纯黑背景 */
-            overflow: hidden; /* 隐藏滚动条 */
+            background: #020204;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             position: relative;
         }
 
-        /* 霓虹流光层：核心动画效果 */
-        .neon-flow {
-            position: absolute;
+        /* 霓虹流光容器 */
+        .neon-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
-                linear-gradient(45deg, rgba(68, 0, 255, 0.1), transparent 40%),
-                linear-gradient(135deg, rgba(0, 212, 255, 0.1), transparent 40%),
-                linear-gradient(225deg, rgba(255, 0, 212, 0.1), transparent 40%),
-                linear-gradient(315deg, rgba(0, 255, 157, 0.1), transparent 40%);
-            background-size: 200% 200%; /* 放大背景尺寸，实现流动 */
-            /* 动画：速度调快（15s）、线性运动、无限循环 */
-            animation: neonMove 15s linear infinite;
-            /* 虚化效果：给流光层加模糊，提升高级感 */
-            filter: blur(8px);
-            /* 层级：在背景层，不遮挡内容 */
+            overflow: hidden;
             z-index: 0;
+            pointer-events: none;
         }
 
-        /* 流光动画关键帧：背景位置偏移实现流动 */
-        @keyframes neonMove {
+        /* 流光线条 - 增大尺寸并强烈虚化 */
+        .flow-line {
+            position: absolute;
+            width: 200%;
+            height: 80px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 255, 255, 0.4) 15%, 
+                rgba(255, 0, 255, 0.6) 50%, 
+                rgba(0, 255, 255, 0.4) 85%, 
+                transparent 100%
+            );
+            filter: blur(20px);
+            opacity: 0;
+            animation: flowMove 6s ease-in-out infinite;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.3),
+                0 0 120px rgba(255, 0, 255, 0.2),
+                0 0 180px rgba(0, 255, 255, 0.1);
+        }
+
+        /* 不同颜色的流光 */
+        .flow-line:nth-child(1) {
+            top: 20%;
+            animation-delay: 0s;
+            height: 100px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 255, 200, 0.35) 15%, 
+                rgba(0, 200, 255, 0.55) 50%, 
+                rgba(0, 255, 200, 0.35) 85%, 
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 80px rgba(0, 255, 200, 0.25),
+                0 0 150px rgba(0, 200, 255, 0.15);
+        }
+
+        .flow-line:nth-child(2) {
+            top: 45%;
+            animation-delay: 2s;
+            height: 120px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 0, 150, 0.3) 15%, 
+                rgba(200, 0, 255, 0.5) 50%, 
+                rgba(255, 0, 150, 0.3) 85%, 
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 80px rgba(255, 0, 150, 0.2),
+                0 0 150px rgba(200, 0, 255, 0.12);
+        }
+
+        .flow-line:nth-child(3) {
+            top: 70%;
+            animation-delay: 4s;
+            height: 90px;
+        }
+
+        .flow-line:nth-child(4) {
+            top: 85%;
+            animation-delay: 1s;
+            height: 70px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 100, 50, 0.35) 15%, 
+                rgba(255, 200, 0, 0.55) 50%, 
+                rgba(255, 100, 50, 0.35) 85%, 
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 60px rgba(255, 100, 50, 0.25),
+                0 0 120px rgba(255, 200, 0, 0.15);
+        }
+
+        /* 斜向流光 */
+        .flow-line:nth-child(5) {
+            top: 30%;
+            transform: rotate(25deg);
+            animation-delay: 3s;
+            height: 150px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(100, 0, 255, 0.3) 15%, 
+                rgba(150, 0, 200, 0.5) 50%, 
+                rgba(100, 0, 255, 0.3) 85%, 
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 100px rgba(100, 0, 255, 0.2),
+                0 0 180px rgba(150, 0, 200, 0.12);
+        }
+
+        .flow-line:nth-child(6) {
+            top: 60%;
+            transform: rotate(-15deg);
+            animation-delay: 5s;
+            height: 110px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 150, 255, 0.3) 15%, 
+                rgba(0, 255, 180, 0.5) 50%, 
+                rgba(0, 150, 255, 0.3) 85%, 
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 80px rgba(0, 150, 255, 0.2),
+                0 0 150px rgba(0, 255, 180, 0.12);
+        }
+
+        /* 极细若隐若现的线条 */
+        .flow-line:nth-child(7) {
+            top: 10%;
+            animation-delay: 2.5s;
+            height: 40px;
+            filter: blur(40px);
+            opacity: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.15) 20%, 
+                rgba(200, 220, 255, 0.25) 50%, 
+                rgba(255, 255, 255, 0.15) 80%, 
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 100px rgba(255, 255, 255, 0.1);
+        }
+
+        .flow-line:nth-child(8) {
+            top: 90%;
+            animation-delay: 0.5s;
+            height: 60px;
+            filter: blur(35px);
+            opacity: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 0, 100, 0.2) 20%, 
+                rgba(255, 100, 200, 0.3) 50%, 
+                rgba(255, 0, 100, 0.2) 80%, 
+                transparent 100%
+            );
+        }
+
+        @keyframes flowMove {
             0% {
-                background-position: 0% 0%;
+                left: -150%;
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            85% {
+                opacity: 0.6;
             }
             100% {
-                background-position: 200% 200%;
+                left: 100%;
+                opacity: 0;
             }
         }
 
-        /* 内容容器：居中显示，层级高于流光层 */
+        /* 背景光晕 - 更大更虚 */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.2;
+            animation: pulse 10s ease-in-out infinite;
+        }
+
+        .glow-orb:nth-child(9) {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%);
+            top: 5%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .glow-orb:nth-child(10) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.25) 0%, transparent 70%);
+            top: 40%;
+            right: -5%;
+            animation-delay: 3s;
+        }
+
+        .glow-orb:nth-child(11) {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(100, 0, 255, 0.2) 0%, transparent 70%);
+            bottom: -10%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.15;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.3;
+            }
+        }
+
+        /* 内容区域 */
         .content {
             position: relative;
             z-index: 1;
-            width: 100%;
-            height: 100%;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 2rem;
             color: #fff;
-            font-family: 'Arial', sans-serif;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 0%, #808080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
             text-align: center;
-            padding: 20px;
-            /* 内容轻微虚化，与背景融合 */
-            backdrop-filter: blur(2px);
         }
 
-        /* 标题霓虹效果 */
-        .content h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            text-shadow: 
-                0 0 5px rgba(0, 212, 255, 0.8),
-                0 0 10px rgba(0, 212, 255, 0.6),
-                0 0 20px rgba(0, 212, 255, 0.4);
-        }
-
-        .content p {
+        p {
             font-size: 1.2rem;
-            color: #e0e0e0;
+            color: rgba(255, 255, 255, 0.5);
             max-width: 600px;
-            line-height: 1.6;
+            text-align: center;
+            line-height: 1.8;
+            font-weight: 300;
+            letter-spacing: 0.05em;
         }
 
-        /* 响应式适配：手机端也能正常显示 */
-        @media (max-width: 768px) {
-            .content h1 {
-                font-size: 2rem;
-            }
-            .content p {
-                font-size: 1rem;
-            }
+        .card {
+            margin-top: 3rem;
+            padding: 2rem 3rem;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .card span {
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
         }
     </style>
 </head>
 <body>
-    <!-- 霓虹流光背景层 -->
-    <div class="neon-flow"></div>
-    <!-- 内容层 -->
+    <div class="neon-container">
+        <!-- 流光线条 -->
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <!-- 若隐若现的细线条 -->
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <!-- 背景光晕 -->
+        <div class="glow-orb"></div>
+        <div class="glow-orb"></div>
+        <div class="glow-orb"></div>
+    </div>
+
     <div class="content">
-        <h1>霓虹流光暗调网站</h1>
-        <p>黑底暗色调 · 霓虹流光流动（速度加快）· 虚化高级感<br>直接复制到 GitHub 的 index.html 即可预览</p>
+        <h1>Neon Flow</h1>
+        <p>在黑暗中流动的霓虹光芒，科技与艺术的完美融合。每一道光都是数据的脉搏，在虚空中编织出未来的图景。</p>
+        
+        <div class="card">
+            <h2><span>✦</span> 流光效果 <span>✦</span></h2>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">CSS Animation & Gradient</p>
+        </div>
     </div>
 </body>
 </html>
