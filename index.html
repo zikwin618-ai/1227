@@ -3,337 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Flow</title>
+    <title>霓虹流光3D背景</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            background: #020204;
-            min-height: 100vh;
-            overflow-x: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            position: relative;
+            overflow: hidden;
+            background: #000000;
+            font-family: 'Arial', sans-serif;
         }
-
-        /* 霓虹流光容器 */
-        .neon-container {
+        #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
             z-index: 0;
-            pointer-events: none;
         }
-
-        /* 流光线条 - 增大尺寸并强烈虚化 */
-        .flow-line {
-            position: absolute;
-            width: 200%;
-            height: 80px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(0, 255, 255, 0.4) 15%, 
-                rgba(255, 0, 255, 0.6) 50%, 
-                rgba(0, 255, 255, 0.4) 85%, 
-                transparent 100%
-            );
-            filter: blur(20px);
-            opacity: 0;
-            animation: flowMove 6s ease-in-out infinite;
-            box-shadow: 
-                0 0 60px rgba(0, 255, 255, 0.3),
-                0 0 120px rgba(255, 0, 255, 0.2),
-                0 0 180px rgba(0, 255, 255, 0.1);
-        }
-
-        /* 不同颜色的流光 */
-        .flow-line:nth-child(1) {
-            top: 20%;
-            animation-delay: 0s;
-            height: 100px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(0, 255, 200, 0.35) 15%, 
-                rgba(0, 200, 255, 0.55) 50%, 
-                rgba(0, 255, 200, 0.35) 85%, 
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 80px rgba(0, 255, 200, 0.25),
-                0 0 150px rgba(0, 200, 255, 0.15);
-        }
-
-        .flow-line:nth-child(2) {
-            top: 45%;
-            animation-delay: 2s;
-            height: 120px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 0, 150, 0.3) 15%, 
-                rgba(200, 0, 255, 0.5) 50%, 
-                rgba(255, 0, 150, 0.3) 85%, 
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 80px rgba(255, 0, 150, 0.2),
-                0 0 150px rgba(200, 0, 255, 0.12);
-        }
-
-        .flow-line:nth-child(3) {
-            top: 70%;
-            animation-delay: 4s;
-            height: 90px;
-        }
-
-        .flow-line:nth-child(4) {
-            top: 85%;
-            animation-delay: 1s;
-            height: 70px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 100, 50, 0.35) 15%, 
-                rgba(255, 200, 0, 0.55) 50%, 
-                rgba(255, 100, 50, 0.35) 85%, 
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 60px rgba(255, 100, 50, 0.25),
-                0 0 120px rgba(255, 200, 0, 0.15);
-        }
-
-        /* 斜向流光 */
-        .flow-line:nth-child(5) {
-            top: 30%;
-            transform: rotate(25deg);
-            animation-delay: 3s;
-            height: 150px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(100, 0, 255, 0.3) 15%, 
-                rgba(150, 0, 200, 0.5) 50%, 
-                rgba(100, 0, 255, 0.3) 85%, 
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 100px rgba(100, 0, 255, 0.2),
-                0 0 180px rgba(150, 0, 200, 0.12);
-        }
-
-        .flow-line:nth-child(6) {
-            top: 60%;
-            transform: rotate(-15deg);
-            animation-delay: 5s;
-            height: 110px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(0, 150, 255, 0.3) 15%, 
-                rgba(0, 255, 180, 0.5) 50%, 
-                rgba(0, 150, 255, 0.3) 85%, 
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 80px rgba(0, 150, 255, 0.2),
-                0 0 150px rgba(0, 255, 180, 0.12);
-        }
-
-        /* 极细若隐若现的线条 */
-        .flow-line:nth-child(7) {
-            top: 10%;
-            animation-delay: 2.5s;
-            height: 40px;
-            filter: blur(40px);
-            opacity: 0;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.15) 20%, 
-                rgba(200, 220, 255, 0.25) 50%, 
-                rgba(255, 255, 255, 0.15) 80%, 
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 100px rgba(255, 255, 255, 0.1);
-        }
-
-        .flow-line:nth-child(8) {
-            top: 90%;
-            animation-delay: 0.5s;
-            height: 60px;
-            filter: blur(35px);
-            opacity: 0;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 0, 100, 0.2) 20%, 
-                rgba(255, 100, 200, 0.3) 50%, 
-                rgba(255, 0, 100, 0.2) 80%, 
-                transparent 100%
-            );
-        }
-
-        @keyframes flowMove {
-            0% {
-                left: -150%;
-                opacity: 0;
-            }
-            15% {
-                opacity: 0.6;
-            }
-            50% {
-                opacity: 0.8;
-            }
-            85% {
-                opacity: 0.6;
-            }
-            100% {
-                left: 100%;
-                opacity: 0;
-            }
-        }
-
-        /* 背景光晕 - 更大更虚 */
-        .glow-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.2;
-            animation: pulse 10s ease-in-out infinite;
-        }
-
-        .glow-orb:nth-child(9) {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%);
-            top: 5%;
-            left: -10%;
-            animation-delay: 0s;
-        }
-
-        .glow-orb:nth-child(10) {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255, 0, 255, 0.25) 0%, transparent 70%);
-            top: 40%;
-            right: -5%;
-            animation-delay: 3s;
-        }
-
-        .glow-orb:nth-child(11) {
-            width: 550px;
-            height: 550px;
-            background: radial-gradient(circle, rgba(100, 0, 255, 0.2) 0%, transparent 70%);
-            bottom: -10%;
-            left: 20%;
-            animation-delay: 6s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 0.15;
-            }
-            50% {
-                transform: scale(1.3);
-                opacity: 0.3;
-            }
-        }
-
-        /* 内容区域 */
         .content {
             position: relative;
             z-index: 1;
-            min-height: 100vh;
+            width: 100%;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
-            color: #fff;
-        }
-
-        h1 {
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            font-weight: 200;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, #fff 0%, #808080 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        p {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.5);
-            max-width: 600px;
-            text-align: center;
-            line-height: 1.8;
-            font-weight: 300;
-            letter-spacing: 0.05em;
-        }
-
-        .card {
-            margin-top: 3rem;
-            padding: 2rem 3rem;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            text-align: center;
-            transition: all 0.4s ease;
-        }
-
-        .card:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.15);
-            transform: translateY(-5px);
-        }
-
-        .card h2 {
-            font-weight: 300;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.5rem;
             color: rgba(255, 255, 255, 0.85);
+            text-align: center;
+            padding: 20px;
         }
-
-        .card span {
-            color: #00ffff;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        h1 {
+            font-size: 3.5vw;
+            margin-bottom: 1vw;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+        }
+        p {
+            font-size: 1.2vw;
+            opacity: 0.7;
+        }
+        /* 错误提示样式 */
+        .error提示 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff4444;
+            font-size: 16px;
+            z-index: 999;
         }
     </style>
 </head>
 <body>
-    <div class="neon-container">
-        <!-- 流光线条 -->
-        <div class="flow-line"></div>
-        <div class="flow-line"></div>
-        <div class="flow-line"></div>
-        <div class="flow-line"></div>
-        <div class="flow-line"></div>
-        <div class="flow-line"></div>
-        <!-- 若隐若现的细线条 -->
-        <div class="flow-line"></div>
-        <div class="flow-line"></div>
-        <!-- 背景光晕 -->
-        <div class="glow-orb"></div>
-        <div class="glow-orb"></div>
-        <div class="glow-orb"></div>
+    <div id="canvas-container"></div>
+    <div class="content">
+        <h1>WHYSL DESIGN</h1>
+        <p>DRAW THE COLOR OF THE DREAM</p>
     </div>
 
-    <div class="content">
-        <h1>Neon Flow</h1>
-        <p>在黑暗中流动的霓虹光芒，科技与艺术的完美融合。每一道光都是数据的脉搏，在虚空中编织出未来的图景。</p>
-        
-        <div class="card">
-            <h2><span>✦</span> 流光效果 <span>✦</span></h2>
-            <p style="font-size: 0.9rem; margin-top: 0.5rem;">CSS Animation & Gradient</p>
-        </div>
-    </div>
+    <!-- 改用更稳定的CDN（全部统一版本，避免兼容问题） -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/postprocessing/ShaderPass.js"></script>
+
+    <script>
+        // 第一步：检测WebGL是否可用（关键！）
+        if (!THREE.WEBGL.isWebGLAvailable()) {
+            const warning = THREE.WEBGL.getWebGLErrorMessage();
+            document.body.appendChild(warning);
+            // 显示中文提示
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error提示';
+            errorDiv.innerText = '你的浏览器不支持WebGL，请更换Chrome/Edge/Firefox浏览器！';
+            document.body.appendChild(errorDiv);
+        } else {
+            // 初始化Three.js核心对象
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.z = 30;
+            camera.position.y = 5;
+
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // 创建霓虹曲线（增加数量，确保能看到）
+            const curveCount = 20; // 增加曲线数量，更容易看到效果
+            const curves = [];
+            const colors = [
+                new THREE.Color(0x4169e1), // 深蓝
+                new THREE.Color(0x9370db), // 紫
+                new THREE.Color(0xff69b4), // 粉
+                new THREE.Color(0x1e90ff), // 浅蓝
+                new THREE.Color(0xda70d6)  // 玫红
+            ];
+
+            function createCurve() {
+                const points = [];
+                const curveHeight = Math.random() * 40 + 20;
+                const curveWidth = Math.random() * 80 + 40;
+
+                for (let i = 0; i < 15; i++) {
+                    const x = Math.sin(i * 0.4) * curveWidth + (Math.random() - 0.5) * 20;
+                    const y = Math.cos(i * 0.3) * curveHeight + (Math.random() - 0.5) * 10;
+                    const z = (Math.random() - 0.5) * 60;
+                    points.push(new THREE.Vector3(x, y, z));
+                }
+
+                const curve = new THREE.CatmullRomCurve3(points);
+                const geometry = new THREE.TubeGeometry(
+                    curve,
+                    200,
+                    1.5, // 加粗线条，更容易看到
+                    16,
+                    false
+                );
+
+                const material = new THREE.MeshBasicMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true,
+                    opacity: 0.9, // 提高不透明度
+                    blending: THREE.AdditiveBlending
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                curves.push({ mesh, curve, speed: (Math.random() * 0.002) + 0.0005 });
+                scene.add(mesh);
+            }
+
+            // 批量创建曲线
+            for (let i = 0; i < curveCount; i++) {
+                createCurve();
+            }
+
+            // 修复辉光参数（提高强度，确保能看到）
+            const bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                1.8, // 提高辉光强度
+                1.2, // 提高辉光半径
+                0.1  // 降低阈值，让更多区域发光
+            );
+            const composer = new THREE.EffectComposer(renderer);
+            composer.addPass(new THREE.RenderPass(scene, camera));
+            composer.addPass(new THREE.ShaderPass(THREE.CopyShader));
+            composer.addPass(bloomPass);
+
+            // 动画循环
+            function animate() {
+                requestAnimationFrame(animate);
+
+                curves.forEach((item) => {
+                    item.mesh.rotation.x += 0.001;
+                    item.mesh.rotation.z += item.speed;
+                    item.mesh.position.x += Math.sin(Date.now() * item.speed) * 0.01;
+                    item.mesh.position.z += Math.cos(Date.now() * item.speed) * 0.01;
+                });
+
+                camera.position.x = Math.sin(Date.now() * 0.0001) * 5;
+                camera.position.y = Math.cos(Date.now() * 0.0001) * 3;
+                camera.lookAt(scene.position);
+
+                composer.render();
+            }
+
+            // 响应式适配
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                composer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // 启动动画
+            animate();
+        }
+    </script>
 </body>
 </html>
