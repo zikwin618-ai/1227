@@ -3,177 +3,261 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aurora Neon Flow</title>
+  <title>Aurora Seamless Flow</title>
   <style>
-    :root {
-      --bg: #030305;
-      --bg-deep: #050508;
-      --text: #ffffff;
-      --glow-purple: #7e5aff;
-      --glow-cyan: #2cf5ff;
-      --glow-pink: #ff59d3;
+    :root{
+      --bg: #050508;
     }
-
-    /* 页面整体 */
     html, body {
       height: 100%;
       margin: 0;
       background: var(--bg);
-      color: var(--text);
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color: #fff;
     }
-
-    /* 背景层：极光风格的渐变和虚化效果，用以增强深色基调的质感 */
-    .bg-gradient {
+    /* 轻微的前景文字占位，可按需删除 */
+    .overlay-title {
       position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at 15% 20%, rgba(124, 0, 255, 0.25), transparent 40%),
-                  radial-gradient(circle at 85% 40%, rgba(0, 255, 255, 0.25), transparent 40%),
-                  linear-gradient(#03030a, #03030a 60%, #020205 100%);
-      z-index: 0;
-      filter: blur(0.5px);
-      pointer-events: none;
-    }
-
-    /* 模拟柔和的飘散雾霭层，增加“缓慢高级感”的虚化效果 */
-    .mist {
-      position: fixed;
-      left: -10vw;
-      top: -10vh;
-      width: 120vw;
-      height: 120vh;
-      background: radial-gradient(circle at 60% 40%, rgba(120, 0, 255, 0.25), transparent 40%),
-                  radial-gradient(circle at 20% 70%, rgba(0, 200, 255, 0.25), transparent 40%);
-      filter: blur(60px);
-      opacity: 0.6;
-      z-index: 0;
-      animation: mistMove 60s linear infinite;
-    }
-    @keyframes mistMove {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(-8vw, 6vh) scale(1.05); }
-      100% { transform: translate(6vw, -4vh) scale(1); }
-    }
-
-    /* 画布层，承载流光曲线 */
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-
-    /* 顶层文本占位（若需要，可自行添加） */
-    .content {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
+      top: 20px; left: 20px;
       z-index: 2;
-      text-align: center;
-      color: rgba(255,255,255,0.9);
-    }
-    .title {
       font-weight: 300;
-      font-size: 2rem;
-      letter-spacing: .25em;
-      text-shadow: 0 0 20px rgba(255,255,255,.6);
+      font-size: 14px;
+      color: rgba(255,255,255,.8);
+      user-select: none;
+      pointer-events: none;
       text-transform: uppercase;
+      letter-spacing: .2em;
     }
 
-    @media (min-width: 900px) {
-      .title { font-size: 3.5rem; }
+    canvas#aurora {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
+      z-index: 0;
+    }
+
+    /* 粒子噪声层（ grain ）的占位样式，透明叠加即可看到颗粒感 */
+    canvas#grain {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: overlay;
+      opacity: 0.08;
     }
   </style>
 </head>
 <body>
-  <div class="bg-gradient"></div>
-  <div class="mist"></div>
+  <div class="overlay-title">Aurora Seamless Background</div>
 
-  <!-- Flowing neon canvas -->
-  <canvas id="aurora"></canvas>
-
-  <!-- Optional foreground text (可删去，留作占位) -->
-  <div class="content" aria-label="title">
-    <div class="title">NEON FLOW</div>
-  </div>
+  <!-- 主背景画布（极光流光） -->
+  <canvas id="aurora" aria-label="Aurora Seamless Background"></canvas>
+  <!-- 可选的粒子噪点覆盖层 -->
+  <canvas id="grain" aria-label="Grain Overlay"></ canvas>
 
   <script>
-    (function() {
-      const canvas = document.getElementById('aurora');
-      const ctx = canvas.getContext('2d');
+  (function(){
+    // 配置区：可修改颜色、曲线数量、速度等
+    const config = {
+      // 是否启用鼠标视差
+      parallax: true,
+      // 粒子噪点覆盖（grain overlay）
+      grain: true,
+      grainTile: 64, // grain tile 大小
+      // 三条主极光曲线配置
+      ribbons: [
+        { color: '#7e5aff', yOffset: -120, amp: 120, freq: 0.0035, speed: 0.0009, lw: 6, blur: 60 },
+        { color: '#2cf5ff', yOffset:   0, amp:  95, freq: 0.0030, speed: 0.0010, lw: 5, blur: 50 },
+        { color: '#ff59d3', yOffset: +120, amp: 110, freq: 0.0028, speed: 0.0011, lw: 4, blur: 40 }
+      ]
+    };
 
-      let w = 0, h = 0;
-      let t = 0;
-      let ribbons = [];
+    const canvas = document.getElementById('aurora');
+    const grainCanvasEl = document.getElementById('grain');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const grainCtx = grainCanvasEl.getContext('2d', { alpha: false });
 
-      function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
+    let dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    let W = 0, H = 0;
+    // 双屏离屏画布，用于无缝平铺
+    let backCanvas, backCtx;
+    let offW = 0, offH = 0;
+    // 无缝循环的偏移量（CSS像素单位）
+    let offset = 0;
 
-        // 根据当前高度动态设置曲线参数
-        ribbons = [
-          { color: '#7e5aff', yOffset: -100, amp: Math.min(h * 0.28, 220), freq: 0.0038, phase: Math.random() * Math.PI * 2, speed: 0.0006, lw: 6, blur: 60 },
-          { color: '#2cf5ff', yOffset:   30, amp: Math.min(h * 0.22, 180), freq: 0.0032, phase: Math.random() * Math.PI * 2, speed: 0.0008, lw: 5, blur: 50 },
-          { color: '#ff59d3', yOffset:  110, amp: Math.min(h * 0.18, 140), freq: 0.0028, phase: Math.random() * Math.PI * 2, speed: 0.0009, lw: 4, blur: 40 }
-        ];
+    // 时间控制
+    let lastTs = performance.now();
+    let t = 0; // 以秒为单位的时间
+
+    // 鼠标视差
+    let mouse = { x: 0, y: 0, nx: 0, ny: 0 };
+
+    function resize() {
+      // 视口尺寸
+      W = Math.floor(window.innerWidth);
+      H = Math.floor(window.innerHeight);
+      dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+
+      // 设置主画布
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // 离屏画布宽度为 2 倍以实现无缝平铺
+      offW = W * 2;
+      offH = H;
+      backCanvas = backCanvas || document.createElement('canvas');
+      backCanvas.width = offW * dpr;
+      backCanvas.height = offH * dpr;
+      backCtx = backCanvas.getContext('2d', { alpha: false });
+      backCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Grain tile
+      if (config.grain) {
+        grainCanvasEl.width = W;
+        grainCanvasEl.height = H;
+        grainCtx.setTransform(1, 0, 0, 1, 0, 0);
+        createGrainTile();
       }
 
-      function drawFrame() {
-        // 背景清理
-        ctx.clearRect(0, 0, w, h);
-        // 深色背景
-        ctx.fillStyle = '#030308';
-        ctx.fillRect(0, 0, w, h);
+      // 重新计算偏移，确保在切换分辨率时不会跳跃
+      offset = 0;
+    }
 
-        // 绘制每一条霓虹线
-        ribbons.forEach((r) => {
-          ctx.lineWidth = r.lw;
-          ctx.strokeStyle = r.color;
-          ctx.shadowBlur = r.blur;
-          ctx.shadowColor = r.color;
+    // 生成 grain tile（用于覆盖层）
+    let grainTile = null;
+    function createGrainTile() {
+      grainTile = document.createElement('canvas');
+      grainTile.width = config.grainTile;
+      grainTile.height = config.grainTile;
+      const gctx = grainTile.getContext('2d');
+      // 轻微随机噪声
+      for (let i = 0; i < (config.grainTile * config.grainTile) / 3; i++) {
+        const x = Math.floor(Math.random() * config.grainTile);
+        const y = Math.floor(Math.random() * config.grainTile);
+        gctx.fillStyle = 'rgba(255,255,255,0.04)';
+        gctx.fillRect(x, y, 1, 1);
+      }
+    }
 
-          ctx.beginPath();
-          for (let x = 0; x <= w; x += 8) {
-            // 三重正弦叠加，形成更自然的波动
-            const y = (h / 2) +
-                      r.yOffset +
-                      Math.sin(x * r.freq + t * r.speed + r.phase) * r.amp +
-                      Math.sin(x * r.freq * 0.5 + t * r.speed * 1.1) * r.amp * 0.4;
+    // 绘制单段曲线（高度范围 0..W*2），用于两段拼接
+    function drawRibbonsSegment(ctx2d, t, Wseg, Hseg, ribbons, parallaxYFactor) {
+      for (let i = 0; i < ribbons.length; i++) {
+        const r = ribbons[i];
+        ctx2d.lineWidth = r.lw;
+        ctx2d.strokeStyle = r.color;
+        ctx2d.shadowBlur = r.blur;
+        ctx2d.shadowColor = r.color;
+        ctx2d.beginPath();
 
-            if (x === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          }
-          ctx.stroke();
+        // 从 0 到 Wseg 绘制一个段落；第二段将通过平移实现无缝拼接
+        for (let x = 0; x <= Wseg; x += 8) {
+          const worldX = x; // 当前段的局部x
+          const y =
+            (Hseg / 2) + r.yOffset +
+            (config.parallax ? parallaxYFactor * (i + 1) : 0) +
+            Math.sin(worldX * r.freq + t * r.speed) * r.amp +
+            Math.sin(worldX * r.freq * 0.5 - t * r.speed * 1.2) * r.amp * 0.4;
 
-          // 轻微的中心高光
-          ctx.lineWidth = r.lw * 1.2;
-          ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-          ctx.beginPath();
-          for (let x = 0; x <= w; x += 8) {
-            const y = (h / 2) +
-                      r.yOffset +
-                      Math.sin(x * r.freq + t * r.speed + r.phase) * r.amp +
-                      Math.sin(x * r.freq * 0.5 + t * r.speed * 1.1) * r.amp * 0.4;
-            if (x === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          }
-          ctx.stroke();
-        });
+          if (x === 0) ctx2d.moveTo(x, y);
+          else ctx2d.lineTo(x, y);
+        }
+        ctx2d.stroke();
+      }
+    }
 
-        t += 16;
-        requestAnimationFrame(drawFrame);
+    // 无缝绘制：在离屏画布上绘制两段并拼接
+    function renderBack(t) {
+      // 清空离屏
+      backCtx.clearRect(0, 0, offW, offH);
+      // 背景颜色，深色基调
+      backCtx.fillStyle = '#030308';
+      backCtx.fillRect(0, 0, offW, offH);
+
+      // 第一段：0..W
+      backCtx.save();
+      drawRibbonsSegment(backCtx, t, W, H, config.ribbons, 0);
+      backCtx.restore();
+
+      // 第二段：平移 W，绘制同样内容，确保无缝拼接
+      backCtx.save();
+      backCtx.translate(W, 0);
+      drawRibbonsSegment(backCtx, t, W, H, config.ribbons, 0);
+      backCtx.restore();
+    }
+
+    // 绘制 Grain Overlay（可选）
+    function renderGrain() {
+      if (!config.grain) return;
+      if (!grainTile) return;
+      grainCtx.clearRect(0, 0, W, H);
+      grainCtx.drawImage(grainTile, 0, 0, W, H);
+
+      // 将 grain tile 平铺到主画布
+      ctx.save();
+      ctx.globalCompositeOperation = 'overlay';
+      ctx.globalAlpha = 0.12;
+      // 使用简单平铺实现
+      for (let y = 0; y < H; y += config.grainTile) {
+        for (let x = 0; x < W; x += config.grainTile) {
+          ctx.drawImage(grainCanvasEl, x, y, config.grainTile, config.grainTile);
+        }
+      }
+      ctx.restore();
+    }
+
+    // 鼠标移动事件：简单的视差实现
+    window.addEventListener('mousemove', (e) => {
+      if (!config.parallax) return;
+      const nx = (e.clientX / W) * 2 - 1;
+      const ny = (e.clientY / H) * 2 - 1;
+      mouse.x = nx;
+      mouse.y = ny;
+      mouse.nx = nx;
+      mouse.ny = ny;
+    });
+
+    // 动画循环
+    function loop(now) {
+      const dt = Math.min(32, now - lastTs); // cap dt
+      lastTs = now;
+      t += dt / 1000; // 秒
+
+      // 更新偏移量，确保无缝循环
+      offset += dt * 0.15; // 调整快慢，这里是像素级平滑滚动
+      if (offset > W) offset -= W;
+
+      // 先在离屏画布绘制两段无缝内容
+      renderBack(t);
+
+      // 把离屏画布裁剪出主视口区域到主画布
+      // 由于 backCanvas 使用了 DPR，实际绘制时坐标为 CSS 像素
+      ctx.drawImage(backCanvas, 0, 0, W, H, 0, 0, W, H);
+
+      // 可选 Grain Overlay
+      if (config.grain) {
+        renderGrain();
       }
 
-      // 初始化并启动
+      requestAnimationFrame(loop);
+    }
+
+    // 初始化
+    function init() {
       resize();
-      window.addEventListener('resize', resize);
-      requestAnimationFrame(drawFrame);
-    })();
+      window.addEventListener('resize', resize, { passive: true });
+      lastTs = performance.now();
+      requestAnimationFrame(loop);
+    }
+
+    init();
+  })();
   </script>
 </body>
 </html>
