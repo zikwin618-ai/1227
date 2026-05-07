@@ -2,405 +2,610 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seamless Aurora Flow</title>
-  <style>
-    :root {
-      --bg-deep: #020204;
-      --bg-mid: #050508;
-      --accent-purple: #8b5cf6;
-      --accent-cyan: #06b6d4;
-      --accent-pink: #ec4899;
-      --glow-intensity: 0.8;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人作品集</title>
 
+  <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    html, body {
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: #050505;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 999px;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
       width: 100%;
-      height: 100%;
-      background: var(--bg-deep);
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      z-index: 999;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    /* 深层背景渐变 - 营造深邃感 */
-    .deep-bg {
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(139, 92, 246, 0.15), transparent),
-        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(6, 182, 212, 0.12), transparent),
-        radial-gradient(ellipse 50% 30% at 50% 100%, rgba(236, 72, 153, 0.08), transparent),
-        var(--bg-deep);
-      z-index: 0;
-    }
-
-    /* 主Canvas层 - 极光流光 */
-    #aurora-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-
-    /* 噪点纹理覆盖 - 增加质感 */
-    .grain-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 2;
-      opacity: 0.03;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    }
-
-    /* 前景内容区域（可自定义） */
-    .content {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
+    .nav-inner {
+      max-width: 1400px;
+      margin: auto;
+      padding: 20px 40px;
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .menu {
+      display: flex;
+      gap: 30px;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      opacity: 0.8;
+      transition: 0.3s;
+    }
+
+    .menu a:hover {
+      opacity: 1;
+    }
+
+    section {
+      padding: 120px 8%;
+    }
+
+    .hero {
+      height: 100vh;
+      position: relative;
+      display: flex;
       align-items: center;
       justify-content: center;
-      pointer-events: none;
+      overflow: hidden;
     }
 
-    .glass-card {
-      background: rgba(255, 255, 255, 0.03);
+    .hero video {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+    }
+
+    .hero-card {
+      position: relative;
+      z-index: 2;
+      width: 900px;
+      max-width: 95%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 24px;
-      padding: 48px 64px;
+      border-radius: 30px;
+      padding: 60px;
       text-align: center;
-      pointer-events: auto;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .glass-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+    .hero-card img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 30px;
+      border: 2px solid rgba(255,255,255,0.2);
     }
 
-    .subtitle {
-      font-size: 12px;
-      letter-spacing: 0.4em;
-      color: rgba(255, 255, 255, 0.5);
-      text-transform: uppercase;
-      margin-bottom: 16px;
+    h1 {
+      font-size: 58px;
+      margin-bottom: 20px;
+    }
+
+    .hero-card p {
+      line-height: 2;
+      color: #ccc;
+      font-size: 18px;
     }
 
     .title {
-      font-size: 48px;
-      font-weight: 300;
-      letter-spacing: 0.15em;
-      color: #ffffff;
+      font-size: 52px;
+      margin-bottom: 60px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+    }
+
+    .skill-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 30px;
+      padding: 40px;
+      transition: 0.4s;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .skill-icon {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+
+    .skill-card h3 {
+      font-size: 28px;
+      margin-bottom: 14px;
+    }
+
+    .skill-card p {
+      color: #aaa;
+      line-height: 1.8;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .job-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 30px;
+      padding: 50px;
+    }
+
+    .job-card h3 {
+      font-size: 34px;
       margin-bottom: 16px;
-      text-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
     }
 
-    .title span {
-      font-weight: 600;
-      background: linear-gradient(135deg, #8b5cf6, #06b6d4, #ec4899);
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: gradientShift 8s ease infinite;
+    .job-card span {
+      color: #999;
+      display: block;
+      margin-bottom: 20px;
     }
 
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+    .job-card p {
+      color: #ccc;
+      line-height: 2;
     }
 
-    .description {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
-      letter-spacing: 0.2em;
-      max-width: 400px;
-      line-height: 1.6;
+    .works-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 60px;
+      flex-wrap: wrap;
+      gap: 20px;
     }
 
-    @media (max-width: 768px) {
-      .glass-card {
-        padding: 32px 40px;
-        margin: 0 20px;
+    .tabs {
+      display: flex;
+      gap: 20px;
+    }
+
+    .tab-btn {
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: black;
+    }
+
+    .video-list {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .video-card {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .video-image {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: 0.6s;
+    }
+
+    .video-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+    }
+
+    .video-content {
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .video-content h3 {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
+
+    .video-content p {
+      color: #bbb;
+      line-height: 2;
+      font-size: 17px;
+    }
+
+    .still-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .still-grid img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      border-radius: 24px;
+      transition: 0.5s;
+    }
+
+    .still-grid img:hover {
+      transform: scale(1.03);
+    }
+
+    footer {
+      padding: 40px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      color: #888;
+    }
+
+    @media(max-width: 900px) {
+      .menu {
+        display: none;
       }
+
+      h1 {
+        font-size: 42px;
+      }
+
       .title {
-        font-size: 32px;
+        font-size: 38px;
+      }
+
+      .video-card {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        padding: 40px 30px;
       }
     }
   </style>
 </head>
+
 <body>
-  <!-- 深层背景 -->
-  <div class="deep-bg"></div>
-  
-  <!-- 极光Canvas -->
-  <canvas id="aurora-canvas"></canvas>
-  
-  <!-- 噪点覆盖 -->
-  <div class="grain-overlay"></div>
-  
-  <!-- 前景内容 -->
-  <div class="content">
-    <div class="glass-card">
-      <div class="subtitle">Visual Design Experience</div>
-      <h1 class="title">AURORA <span>FLOW</span></h1>
-      <p class="description">Seamless infinite loop with ethereal glow and fluid dynamics</p>
+
+  <nav>
+    <div class="nav-inner">
+      <div class="logo">MY PORTFOLIO</div>
+
+      <div class="menu">
+        <a href=" ">首页</a >
+        <a href="#skills">专业技能</a >
+        <a href="#experience">工作经历</a >
+        <a href="#works">作品展示</a >
+        <a href="#contact">联系我</a >
+      </div>
     </div>
-  </div>
+  </nav>
+
+  <!-- 首页 -->
+  <section class="hero" id="home">
+
+    <video autoplay muted loop playsinline>
+      <source src="https://cdn.coverr.co/videos/coverr-filmmaker-working-on-set-1560671711892?download=1080p" type="video/mp4">
+    </video>
+
+    <div class="overlay"></div>
+
+    <div class="hero-card">
+      < img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop">
+
+      <h1>你好，我是你的名字</h1>
+
+      <p>
+        视频创作者 / 导演 / 剪辑师
+        <br><br>
+        专注商业广告、品牌视觉、产品短片与电影感内容表达。
+        擅长通过镜头语言、节奏设计与情绪氛围构建高级视觉体验。
+      </p >
+    </div>
+  </section>
+
+  <!-- 技能 -->
+  <section id="skills">
+    <h2 class="title">专业技能</h2>
+
+    <div class="skills-grid">
+
+      <div class="skill-card">
+        <div class="skill-icon">✨</div>
+        <h3>AE</h3>
+        <p>特效包装 / MG动画 / 视觉合成</p >
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-icon">🎨</div>
+        <h3>PS</h3>
+        <p>修图 / 海报设计 / 商业视觉</p >
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-icon">📷</div>
+        <h3>拍摄</h3>
+        <p>产品拍摄 / 商业镜头 / 灯光</p >
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-icon">🎬</div>
+        <h3>剪辑</h3>
+        <p>节奏设计 / 调色 / 视频叙事</p >
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-icon">🧊</div>
+        <h3>Blender</h3>
+        <p>三维建模 / 产品渲染 / 动画</p >
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-icon">🤖</div>
+        <h3>AI</h3>
+        <p>AI视觉生成 / 创意工作流</p >
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 工作经历 -->
+  <section id="experience">
+    <h2 class="title">工作经历</h2>
+
+    <div class="timeline">
+
+      <div class="job-card">
+        <span>第一份工作</span>
+        <h3>剪辑岗位</h3>
+        <p>
+          负责商业广告、品牌宣传片、短视频内容的后期剪辑与节奏设计，
+          包括调色、字幕包装、音效与视觉风格统一。
+        </p >
+      </div>
+
+      <div class="job-card">
+        <span>第二份工作</span>
+        <h3>小产品香薰拍摄剪辑岗位</h3>
+        <p>
+          负责香薰类与生活方式产品的商业短视频拍摄及后期制作，
+          注重高级感氛围与品牌调性的视觉表达。
+        </p >
+      </div>
+
+      <div class="job-card">
+        <span>第三份工作</span>
+        <h3>家清类小家电拍摄剪辑三维制作岗位</h3>
+        <p>
+          负责产品广告视频、商业拍摄、后期剪辑以及 Blender 三维视觉制作，
+          包括产品建模、动态渲染与广告级包装设计。
+        </p >
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 作品展示 -->
+  <section id="works">
+
+    <div class="works-header">
+      <h2 class="title">作品展示</h2>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('video')">视频作品</button>
+        <button class="tab-btn" onclick="showTab('still')">静帧作品</button>
+      </div>
+    </div>
+
+    <!-- 视频 -->
+    <div id="videoWorks" class="video-list">
+
+      <div class="video-card">
+        <div class="video-image">
+          < img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop">
+          <div class="play-btn">▶</div>
+        </div>
+
+        <div class="video-content">
+          <h3>山海之间</h3>
+          <p>
+            旅行纪录类作品，通过自然风景与人物情绪的结合，
+            营造具有电影感的叙事氛围。
+          </p >
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-image">
+          < img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop">
+          <div class="play-btn">▶</div>
+        </div>
+
+        <div class="video-content">
+          <h3>夜晚的对白</h3>
+          <p>
+            情绪短片，通过暖色灯光与低照度环境强化人物氛围。
+          </p >
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-image">
+          < img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1600&auto=format&fit=crop">
+          <div class="play-btn">▶</div>
+        </div>
+
+        <div class="video-content">
+          <h3>城市呼吸</h3>
+          <p>
+            城市商业视觉作品，结合快速剪辑与镜头运动塑造节奏。
+          </p >
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-image">
+          < img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1600&auto=format&fit=crop">
+          <div class="play-btn">▶</div>
+        </div>
+
+        <div class="video-content">
+          <h3>一杯咖啡的时间</h3>
+          <p>
+            美食与产品类短片，以微距镜头与慢动作强化质感。
+          </p >
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-image">
+          < img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop">
+          <div class="play-btn">▶</div>
+        </div>
+
+        <div class="video-content">
+          <h3>夏日未尽</h3>
+          <p>
+            旅行 Vlog 类型作品，呈现自由与松弛的视觉体验。
+          </p >
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-image">
+          < img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=1600&auto=format&fit=crop">
+          <div class="play-btn">▶</div>
+        </div>
+
+        <div class="video-content">
+          <h3>未来城市</h3>
+          <p>
+            结合 Blender 与 AI 生成的未来科技视觉短片。
+          </p >
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 静帧 -->
+    <div id="stillWorks" class="still-grid">
+      < img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=1600&auto=format&fit=crop">
+      < img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1600&auto=format&fit=crop">
+      < img src="https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1600&auto=format&fit=crop">
+      < img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1600&auto=format&fit=crop">
+      < img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop">
+      < img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop">
+    </div>
+
+  </section>
+
+  <!-- 联系 -->
+  <footer id="contact">
+    联系我：yourmail@email.com ｜ Instagram：@yourname
+  </footer>
 
   <script>
-    /**
-     * 高级无缝循环极光系统
-     * 核心技术：双缓冲离屏渲染 + 数学波形叠加 + 动态色彩插值
-     */
-    class AuroraSystem {
-      constructor() {
-        this.canvas = document.getElementById('aurora-canvas');
-        this.ctx = this.canvas.getContext('2d', { alpha: true });
-        
-        // 离屏画布用于无缝循环
-        this.offCanvas = document.createElement('canvas');
-        this.offCtx = this.offCanvas.getContext('2d', { alpha: true });
-        
-        this.dpr = Math.max(1, window.devicePixelRatio || 1);
-        this.width = 0;
-        this.height = 0;
-        this.offWidth = 0;
-        
-        this.time = 0;
-        this.scrollOffset = 0;
-        this.scrollSpeed = 0.8; // 像素/帧，控制流动速度
-        
-        // 波浪配置（可调整）
-        this.ribbons = [
-          {
-            baseColor: { r: 139, g: 92, b: 246 }, // 紫色
-            yOffset: -80,
-            amplitude: 100,
-            frequency: 0.002,
-            speed: 0.0005,
-            phase: 0,
-            lineWidth: 4,
-            blur: 60,
-            opacity: 0.9
-          },
-          {
-            baseColor: { r: 6, g: 182, b: 212 }, // 青色
-            yOffset: 20,
-            amplitude: 80,
-            frequency: 0.0025,
-            speed: 0.0007,
-            phase: Math.PI * 0.5,
-            lineWidth: 3,
-            blur: 50,
-            opacity: 0.85
-          },
-          {
-            baseColor: { r: 236, g: 72, b: 153 }, // 粉色
-            yOffset: 120,
-            amplitude: 90,
-            frequency: 0.0018,
-            speed: 0.0006,
-            phase: Math.PI,
-            lineWidth: 3.5,
-            blur: 55,
-            opacity: 0.8
-          },
-          {
-            baseColor: { r: 99, g: 102, b: 241 }, // 靛蓝
-            yOffset: -20,
-            amplitude: 70,
-            frequency: 0.003,
-            speed: 0.0008,
-            phase: Math.PI * 1.5,
-            lineWidth: 2.5,
-            blur: 40,
-            opacity: 0.75
-          }
-        ];
-        
-        this.init();
-      }
-      
-      init() {
-        this.resize();
-        window.addEventListener('resize', () => this.resize(), { passive: true });
-        
-        // 鼠标视差效果
-        this.mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-        window.addEventListener('mousemove', (e) => {
-          this.mouse.targetX = (e.clientX / this.width - 0.5) * 2;
-          this.mouse.targetY = (e.clientY / this.height - 0.5) * 2;
-        }, { passive: true });
-        
-        this.animate();
-      }
-      
-      resize() {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
-        
-        // 主画布设置
-        this.canvas.style.width = `${this.width}px`;
-        this.canvas.style.height = `${this.height}px`;
-        this.canvas.width = this.width * this.dpr;
-        this.canvas.height = this.height * this.dpr;
-        this.ctx.scale(this.dpr, this.dpr);
-        
-        // 离屏画布为2倍宽度实现无缝循环
-        this.offWidth = this.width * 2;
-        this.offCanvas.width = this.offWidth * this.dpr;
-        this.offCanvas.height = this.height * this.dpr;
-        this.offCtx.scale(this.dpr, this.dpr);
-        
-        // 重新计算波浪振幅适配新高度
-        this.ribbons.forEach(ribbon => {
-          ribbon.amplitude = Math.min(ribbon.amplitude, this.height * 0.15);
-        });
-      }
-      
-      /**
-       * 获取动态色彩（随时间微妙变化）
-       */
-      getDynamicColor(base, time, index) {
-        const shift = Math.sin(time * 0.0003 + index * 2) * 0.1;
-        return {
-          r: Math.min(255, Math.max(0, base.r + shift * 50)),
-          g: Math.min(255, Math.max(0, base.g + shift * 30)),
-          b: Math.min(255, Math.max(0, base.b + shift * 40))
-        };
-      }
-      
-      /**
-       * 计算波浪Y坐标（多重正弦叠加）
-       */
-      calculateY(x, ribbon, time, mouseParallax) {
-        const baseY = this.height / 2 + ribbon.yOffset + mouseParallax;
-        
-        // 主波形
-        const primary = Math.sin(x * ribbon.frequency + time * ribbon.speed + ribbon.phase);
-        // 次波形（更高频细节）
-        const secondary = Math.sin(x * ribbon.frequency * 1.5 - time * ribbon.speed * 0.7) * 0.4;
-        // 第三层波形（极低频起伏）
-        const tertiary = Math.sin(x * ribbon.frequency * 0.3 + time * ribbon.speed * 0.3) * 0.2;
-        
-        return baseY + (primary + secondary + tertiary) * ribbon.amplitude;
-      }
-      
-      /**
-       * 渲染单条波浪到指定上下文
-       */
-      drawRibbon(ctx, ribbon, time, offsetX, mouseParallax) {
-        const dynamicColor = this.getDynamicColor(ribbon.baseColor, time, ribbon.phase);
-        const colorStr = `rgba(${dynamicColor.r}, ${dynamicColor.g}, ${dynamicColor.b}, ${ribbon.opacity})`;
-        
-        ctx.save();
-        
-        // 外发光层
-        ctx.shadowBlur = ribbon.blur;
-        ctx.shadowColor = colorStr;
-        ctx.strokeStyle = colorStr;
-        ctx.lineWidth = ribbon.lineWidth;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        
-        ctx.beginPath();
-        for (let x = 0; x <= this.width + 10; x += 6) {
-          const worldX = x + offsetX;
-          const y = this.calculateY(worldX, ribbon, time, mouseParallax);
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-        
-        // 内高光层（增加立体感）
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = `rgba(255, 255, 255, ${ribbon.opacity * 0.3})`;
-        ctx.lineWidth = ribbon.lineWidth * 0.4;
-        
-        ctx.beginPath();
-        for (let x = 0; x <= this.width + 10; x += 6) {
-          const worldX = x + offsetX;
-          const y = this.calculateY(worldX, ribbon, time, mouseParallax);
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-        
-        ctx.restore();
-      }
-      
-      /**
-       * 渲染完整帧到离屏画布
-       */
-      renderOffscreen() {
-        // 清空离屏画布
-        this.offCtx.clearRect(0, 0, this.offWidth, this.height);
-        
-        // 鼠标视差插值（平滑跟随）
-        this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.05;
-        this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.05;
-        const mouseParallax = this.mouse.y * 30;
-        
-        // 绘制第一屏（0 ~ width）
-        this.ribbons.forEach((ribbon, i) => {
-          this.drawRibbon(this.offCtx, ribbon, this.time, 0, mouseParallax * (i % 2 === 0 ? 1 : -1));
-        });
-        
-        // 绘制第二屏（width ~ 2*width），完全复制实现无缝
-        this.offCtx.save();
-        this.offCtx.translate(this.width, 0);
-        this.ribbons.forEach((ribbon, i) => {
-          // 第二屏相位需要微调以确保衔接处平滑
-          const ribbonCopy = { ...ribbon, phase: ribbon.phase + this.width * ribbon.frequency };
-          this.drawRibbon(this.offCtx, ribbonCopy, this.time, 0, mouseParallax * (i % 2 === 0 ? 1 : -1));
-        });
-        this.offCtx.restore();
-      }
-      
-      /**
-       * 动画循环
-       */
-      animate() {
-        // 更新时间
-        this.time += 16; // 约60fps，每帧16ms
-        
-        // 更新滚动偏移（实现无缝循环）
-        this.scrollOffset += this.scrollSpeed;
-        if (this.scrollOffset >= this.width) {
-          this.scrollOffset -= this.width;
-        }
-        
-        // 渲染到离屏
-        this.renderOffscreen();
-        
-        // 裁剪显示区域到主画布
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        this.ctx.drawImage(
-          this.offCanvas,
-          this.scrollOffset * this.dpr, 0,           // 源x, y
-          this.width * this.dpr, this.height * this.dpr, // 源width, height
-          0, 0,                                      // 目标x, y
-          this.width, this.height                     // 目标width, height
-        );
-        
-        requestAnimationFrame(() => this.animate());
+
+    function showTab(type) {
+
+      const video = document.getElementById('videoWorks')
+      const still = document.getElementById('stillWorks')
+      const buttons = document.querySelectorAll('.tab-btn')
+
+      buttons.forEach(btn => btn.classList.remove('active'))
+
+      if(type === 'video') {
+        video.style.display = 'flex'
+        still.style.display = 'none'
+        buttons[0].classList.add('active')
+      } else {
+        video.style.display = 'none'
+        still.style.display = 'grid'
+        buttons[1].classList.add('active')
       }
     }
-    
-    // 启动系统
-    document.addEventListener('DOMContentLoaded', () => {
-      new AuroraSystem();
-    });
+
   </script>
+
 </body>
 </html>
